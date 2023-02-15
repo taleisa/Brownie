@@ -1,0 +1,2 @@
+from web3 import Web3
+TicketNFT[0].grantRole(Web3.solidityKeccak(["bytes32"],[str.encode("MINTERROLE")]),accounts[0])
