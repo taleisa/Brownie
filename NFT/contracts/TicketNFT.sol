@@ -26,7 +26,7 @@ contract TicketNFT is ERC721, ERC721Burnable, ERC721URIStorage, Ownable, AccessC
     uint256 public _endDate;
     Counters.Counter public _tokenIdCounter;
     struct Ticket{// Specific to individual ticket
-    string _price;// Different categories may have different prices
+    uint256 _price;// Different categories may have different prices
     bool _forSale;// If true indicates that any verified account can buy the ticket
     uint256 _seatNumber;// Each ticket has a different seat number
     } 
@@ -40,7 +40,7 @@ contract TicketNFT is ERC721, ERC721Burnable, ERC721URIStorage, Ownable, AccessC
     } 
 
 
-    function safeMint(address to, string memory uri, string memory price, uint256 seatNumber) public onlyRole(MINTER_ROLE) {
+    function safeMint(address to, string memory uri, uint256 price, uint256 seatNumber) public onlyRole(MINTER_ROLE) {
         require(hasRole(GEA_ACCOUNTS, to), "Cannot mint to account not owned by GEA");
         uint256 tokenId = _tokenIdCounter.current();
         _allTickets.push(Ticket(price,true,seatNumber));// Add new ticket to array of tickets(true because it is originally with GEA who want to sell immidiatly)
@@ -54,7 +54,7 @@ contract TicketNFT is ERC721, ERC721Burnable, ERC721URIStorage, Ownable, AccessC
         uint256 tokenId,
         bytes memory data)public payable onlyRole(VERIFIED_ACCOUNTS){
             require(_allTickets[tokenId]._forSale == true,"Ticket not for sale");
-            require(keccak256(abi.encodePacked(msg.value)) == keccak256(abi.encodePacked((_allTickets[tokenId]._price))), "Incorrect price");
+            require(msg.value == _allTickets[tokenId]._price, "Incorrect price");
             super._safeTransfer(ownerOf(tokenId),msg.sender,tokenId, data);
             ticketIndexToOwner[tokenId] = msg.sender;//Ticket is now owned by sender
             _allTickets[tokenId]._forSale = false;//Ticket no longer for sale once transfered to new owner
